@@ -1,0 +1,16 @@
+seed: 42
+val_size: 0.25
+
+data:
+  detector: "H1"
+  segment_duration_sec: 4
+  sample_rate: 4096
+  n_per_glitch_class: 5   # kept small for a fast Week-1 end-to-end run
+
+model_params:
+  n_estimators: 200
+  max_depth: null
+
+mlflow:
+  experiment_name: "gw-glitch-baseline"
+  tracking_uri: "mlruns"

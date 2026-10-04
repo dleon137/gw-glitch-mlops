@@ -1,0 +1,25 @@
+# Core
+numpy
+pandas
+scikit-learn
+scipy
+
+# GW-specific data access
+gwpy
+gwosc
+
+# Experiment tracking (Week 3+)
+mlflow
+
+# Serving (Week 5+)
+fastapi
+uvicorn[standard]
+
+# Testing
+pytest
+pytest-cov
+
+# Dev / lint
+black
+ruff
+pyyaml
