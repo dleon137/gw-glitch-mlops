@@ -1,0 +1,105 @@
+<svg viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pipeline diagram: GWOSC and Gravity Spy data flow through a data pipeline, feature extraction, and training (all built and verified), into a model registry, serving layer, and monitoring (all planned for weeks 2 through 6), with GitHub Actions CI testing every stage on push.">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+
+  <!-- card background -->
+  <rect x="0.5" y="0.5" width="1199" height="559" rx="16" fill="#0d1117" stroke="#30363d"/>
+
+  <!-- title -->
+  <text x="600" y="46" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="26" font-weight="700" fill="#e6edf3">Gravitational-Wave Glitch Classifier</text>
+  <text x="600" y="72" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="14" fill="#8b949e">End-to-end MLOps pipeline — GWOSC + Gravity Spy data → features → model → serving</text>
+
+  <!-- ===== pipeline boxes ===== -->
+  <!-- Box 1: Data Sources (built) -->
+  <rect x="50" y="150" width="140" height="100" rx="10" fill="#113b23" stroke="#3fb950" stroke-width="1.5"/>
+  <circle cx="178" cy="162" r="6" fill="#3fb950"/>
+  <text x="120" y="193" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Data Sources</text>
+  <text x="120" y="212" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">GWOSC · Gravity Spy</text>
+
+  <!-- Box 2: Data Pipeline (built) -->
+  <rect x="210" y="150" width="140" height="100" rx="10" fill="#113b23" stroke="#3fb950" stroke-width="1.5"/>
+  <circle cx="338" cy="162" r="6" fill="#3fb950"/>
+  <text x="280" y="193" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Data Pipeline</text>
+  <text x="280" y="212" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">src/data.py</text>
+
+  <!-- Box 3: Feature Extraction (built) -->
+  <rect x="370" y="150" width="140" height="100" rx="10" fill="#113b23" stroke="#3fb950" stroke-width="1.5"/>
+  <circle cx="498" cy="162" r="6" fill="#3fb950"/>
+  <text x="440" y="193" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Feature</text>
+  <text x="440" y="209" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Extraction</text>
+  <text x="440" y="227" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">src/model.py</text>
+
+  <!-- Box 4: Training (built) -->
+  <rect x="530" y="150" width="140" height="100" rx="10" fill="#113b23" stroke="#3fb950" stroke-width="1.5"/>
+  <circle cx="658" cy="162" r="6" fill="#3fb950"/>
+  <text x="600" y="193" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Training</text>
+  <text x="600" y="212" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">RandomForest</text>
+  <text x="600" y="226" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">baseline</text>
+
+  <!-- Box 5: Model Registry (planned) -->
+  <rect x="690" y="150" width="140" height="100" rx="10" fill="#3b2f07" stroke="#d29922" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <circle cx="818" cy="162" r="6" fill="#d29922"/>
+  <text x="760" y="193" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Model Registry</text>
+  <text x="760" y="212" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">MLflow</text>
+
+  <!-- Box 6: Serving (planned) -->
+  <rect x="850" y="150" width="140" height="100" rx="10" fill="#3b2f07" stroke="#d29922" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <circle cx="978" cy="162" r="6" fill="#d29922"/>
+  <text x="920" y="193" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Serving</text>
+  <text x="920" y="212" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">FastAPI</text>
+  <text x="920" y="226" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">+ Docker</text>
+
+  <!-- Box 7: Monitoring (planned) -->
+  <rect x="1010" y="150" width="140" height="100" rx="10" fill="#3b2f07" stroke="#d29922" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <circle cx="1138" cy="162" r="6" fill="#d29922"/>
+  <text x="1080" y="193" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Monitoring</text>
+  <text x="1080" y="212" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">drift + logs</text>
+
+  <!-- ===== arrows between boxes, labeled with what moves ===== -->
+  <line x1="190" y1="200" x2="207" y2="200" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="200" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">fetch_open_data()</text>
+
+  <line x1="350" y1="200" x2="367" y2="200" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="360" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">labeled .npz dataset</text>
+
+  <line x1="510" y1="200" x2="527" y2="200" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="520" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">feature vectors</text>
+
+  <line x1="670" y1="200" x2="687" y2="200" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="680" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">model + metrics</text>
+
+  <line x1="830" y1="200" x2="847" y2="200" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="840" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">versioned artifact</text>
+
+  <line x1="990" y1="200" x2="1007" y2="200" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="1000" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8b949e">predictions + logs</text>
+
+  <!-- ===== CI/CD band ===== -->
+  <rect x="50" y="330" width="1100" height="50" rx="8" fill="none" stroke="#30363d" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="600" y="360" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#8b949e">GitHub Actions CI — pytest on every push (offline tests now; network tests marked &amp; skipped)</text>
+
+  <!-- dashed connectors from each stage down to CI band -->
+  <line x1="120" y1="250" x2="120" y2="330" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="280" y1="250" x2="280" y2="330" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="440" y1="250" x2="440" y2="330" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="600" y1="250" x2="600" y2="330" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="760" y1="250" x2="760" y2="330" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="920" y1="250" x2="920" y2="330" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="1080" y1="250" x2="1080" y2="330" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+
+  <!-- ===== legend ===== -->
+  <rect x="380" y="415" width="16" height="16" rx="3" fill="#113b23" stroke="#3fb950" stroke-width="1.5"/>
+  <text x="404" y="427" font-family="system-ui, sans-serif" font-size="12" fill="#e6edf3">Built &amp; verified</text>
+
+  <rect x="610" y="415" width="16" height="16" rx="3" fill="#3b2f07" stroke="#d29922" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="634" y="427" font-family="system-ui, sans-serif" font-size="12" fill="#e6edf3">Planned (Weeks 2–6)</text>
+
+  <line x1="840" y1="423" x2="870" y2="423" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="878" y="427" font-family="system-ui, sans-serif" font-size="12" fill="#e6edf3">CI coverage</text>
+
+  <!-- caption -->
+  <text x="600" y="520" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-style="italic" fill="#6e7681">Current build status, Week 1 of a 6-week MLOps build. Status reflects what runs today, not the finished design.</text>
+</svg>

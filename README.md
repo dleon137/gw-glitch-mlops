@@ -2,6 +2,8 @@
 
 **Status:** 🚧 In progress (Week 1 of 6)
 
+<img src="docs/assets/architecture.svg" alt="Pipeline diagram: GWOSC and Gravity Spy data flow through a data pipeline, feature extraction, and training (built and verified), into a model registry, serving layer, and monitoring (planned for weeks 2-6), with GitHub Actions CI testing every stage on push." width="100%">
+
 ## Overview
 
 A binary classifier that distinguishes gravitational-wave-like signal segments
@@ -34,21 +36,10 @@ deliberately — a real class-balance and labeling strategy is a Week 2+ item.
 
 ## Architecture
 
-```
-┌─────────────┐     ┌──────────────┐     ┌───────────────┐     ┌────────────┐
-│  Data Layer │ --> │  Training    │ --> │  Model         │ --> │  Serving   │
-│  (GWOSC +   │     │  (features + │     │  Registry      │     │  (FastAPI  │
-│  GravitySpy)│     │  RandomForest│     │  (MLflow)      │     │  + Docker) │
-│             │     │  + MLflow)   │     │                │     │            │
-└─────────────┘     └──────────────┘     └───────────────┘     └────────────┘
-                            │                                          │
-                            v                                          v
-                     ┌──────────────┐                          ┌────────────┐
-                     │  CI/CD       │                          │ Monitoring │
-                     │  (GH Actions)│                          │ (logging + │
-                     │              │                          │  drift)    │
-                     └──────────────┘                          └────────────┘
-```
+See the diagram at the top of this README. Green stages are built and
+verified (at least against synthetic data — see the Build log below for
+what "verified" means at each stage); amber stages are planned for
+Weeks 2–6.
 
 ## Repo structure
 
