@@ -98,6 +98,11 @@ pytest tests/
 # Run network-dependent tests explicitly
 pytest tests/ -m network
 
+# Sanity-check the training pipeline with synthetic data (no network needed) —
+# useful for verifying src/train.py and src/model.py in an offline/sandboxed
+# environment where GWOSC/PyPI access is restricted
+python scripts/sanity_check_training.py
+
 # Build and run the training container
 docker build -t gw-glitch-api .
 docker run gw-glitch-api
@@ -111,7 +116,11 @@ along the way.
 - **Week 1:** Dataset assembly (GWOSC + Gravity Spy), hand-engineered time/
   frequency-domain features, RandomForest baseline, offline unit tests for
   the feature pipeline, CI skeleton. Signal-class labeling simplification
-  noted above as a known limitation to revisit.
+  noted above as a known limitation to revisit. Training pipeline
+  (`src/train.py`) sanity-checked end-to-end against synthetic data via
+  `scripts/sanity_check_training.py`, since the dev sandbox used to build
+  this couldn't reach PyPI/GWOSC — **real GWOSC download has not yet been
+  run** and is the first thing to verify in your own environment.
 - **Week 2:** Package hardening, more test coverage (data pipeline edge
   cases), proper train/val/test split by event rather than random shuffle.
 - **Week 3:** MLflow experiment tracking, Dockerized training.
