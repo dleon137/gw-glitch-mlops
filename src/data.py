@@ -269,6 +269,22 @@ def build_dataset(
             )
             continue
 
+        # GWOSC strain can contain non-finite values (NaN/Inf) within an
+        # otherwise correctly-sized segment -- observed in practice around
+        # some Gravity Spy glitch times, likely detector lock-loss or
+        # data-quality gaps that don't shorten the returned array. Feeding
+        # these into the model blindly produced a `ValueError: Input X
+        # contains NaN` at training time, so we filter at ingestion instead
+        # of imputing -- a strain segment with a real gap isn't usable
+        # signal for a Week-1 baseline either way.
+        if not np.all(np.isfinite(segment)):
+            n_bad = int(np.sum(~np.isfinite(segment)))
+            logger.warning(
+                "Skipping gps=%s: segment contains %d non-finite sample(s)",
+                gps_center, n_bad,
+            )
+            continue
+
         X.append(segment)
         y.append("glitch" if row["label"] != "signal" else "signal")
         gps_times.append(gps_center)

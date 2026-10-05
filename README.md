@@ -41,6 +41,15 @@ Zenodo record splits metadata into one CSV per detector per observing run
 available, O1) rather than pooling across all runs — pooling is a
 reasonable Week 2+ extension once the pipeline is proven end-to-end.
 
+**Known Week-1 limitation (non-finite strain segments):** some GWOSC strain
+segments contain non-finite (NaN/Inf) samples within an otherwise
+correctly-sized window, likely from detector lock-loss or data-quality gaps
+around certain Gravity Spy glitch times. `build_dataset()` filters these out
+at ingestion rather than imputing them — a segment with a real gap isn't
+usable signal for a baseline either way. This does shrink the effective
+dataset size somewhat; a Week 2+ item could pull data from additional GPS
+offsets to make up the difference if needed.
+
 ## Architecture
 
 See the diagram at the top of this README. Green stages are built and

@@ -17,6 +17,7 @@ import logging
 from pathlib import Path
 
 import joblib
+import numpy as np
 import yaml
 from sklearn.metrics import accuracy_score, classification_report, f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
@@ -54,6 +55,22 @@ def main(config_path: str, rebuild_data: bool = False):
     logger.info("Loaded dataset: %d examples, classes=%s", len(y_raw), set(y_raw))
 
     X = featurize_dataset(X_raw, sample_rate=config["data"]["sample_rate"])
+
+    # Fail fast with a clear message if any feature is non-finite, rather
+    # than letting it reach sklearn's much less specific "Input X contains
+    # NaN" error. build_dataset() already filters non-finite raw strain
+    # segments at ingestion (see src/data.py), so this should not trigger
+    # in normal operation -- it's a guard against a *different* bad
+    # dataset.npz (e.g. one built before that fix) rather than a fix in
+    # itself.
+    if not np.all(np.isfinite(X)):
+        n_bad_rows = int(np.sum(~np.isfinite(X).all(axis=1)))
+        raise ValueError(
+            f"{n_bad_rows} of {len(X)} feature rows contain NaN/Inf after "
+            "featurization. This dataset.npz may predate the non-finite-"
+            "segment filter in build_dataset() -- rerun with --rebuild-data "
+            "to regenerate it."
+        )
 
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(y_raw)
