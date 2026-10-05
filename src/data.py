@@ -33,10 +33,16 @@ logger = logging.getLogger(__name__)
 RAW_DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
 PROCESSED_DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "processed"
 
-GRAVITY_SPY_METADATA_URL = (
-    "https://zenodo.org/records/5649212/files/trainingset_v1d1_metadata.csv"
-)
-GRAVITY_SPY_CACHE_PATH = RAW_DATA_DIR / "gravityspy_metadata.csv"
+# The Gravity Spy Zenodo record (5649212) splits metadata into one CSV per
+# detector per observing run -- there is no single combined file. For Week 1
+# we use one run per detector (the smallest available, to keep downloads
+# fast); pooling across all runs is a reasonable Week 2+ extension.
+# Verified against the live record on 2026-10-04.
+GRAVITY_SPY_FILES = {
+    "H1": "H1_O1.csv",  # ~16 MB
+    "L1": "L1_O1.csv",  # ~27 MB
+}
+GRAVITY_SPY_BASE_URL = "https://zenodo.org/records/5649212/files"
 
 # A handful of confirmed GWTC event GPS times (H1), used to pull "quiet"
 # segments as a stand-in for signal-bearing data. Small and hardcoded for
@@ -94,22 +100,32 @@ def download_strain_segment(
     return ts.value.astype(np.float32)
 
 
-def _download_gravity_spy_metadata(force: bool = False) -> pd.DataFrame:
+def _download_gravity_spy_metadata(detector: str = "H1", force: bool = False) -> pd.DataFrame:
     """
-    Download (or load cached) Gravity Spy glitch metadata.
+    Download (or load cached) Gravity Spy glitch metadata for one detector's
+    chosen observing run (see GRAVITY_SPY_FILES).
 
-    Returns a DataFrame with at least: peak_time (GPS), ifo (detector),
-    ml_label (glitch class), ml_confidence.
+    Returns the raw DataFrame exactly as published -- callers are
+    responsible for selecting/renaming columns (see load_glitch_labels).
     """
+    if detector not in GRAVITY_SPY_FILES:
+        raise ValueError(
+            f"No Gravity Spy file configured for detector={detector!r}; "
+            f"available: {list(GRAVITY_SPY_FILES)}"
+        )
+
     RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    filename = GRAVITY_SPY_FILES[detector]
+    cache_path = RAW_DATA_DIR / f"gravityspy_{filename}"
 
-    if GRAVITY_SPY_CACHE_PATH.exists() and not force:
-        logger.info("Loading cached Gravity Spy metadata from %s", GRAVITY_SPY_CACHE_PATH)
-        return pd.read_csv(GRAVITY_SPY_CACHE_PATH)
+    if cache_path.exists() and not force:
+        logger.info("Loading cached Gravity Spy metadata from %s", cache_path)
+        return pd.read_csv(cache_path)
 
-    logger.info("Downloading Gravity Spy metadata from %s", GRAVITY_SPY_METADATA_URL)
-    df = pd.read_csv(GRAVITY_SPY_METADATA_URL)
-    df.to_csv(GRAVITY_SPY_CACHE_PATH, index=False)
+    url = f"{GRAVITY_SPY_BASE_URL}/{filename}?download=1"
+    logger.info("Downloading Gravity Spy metadata from %s", url)
+    df = pd.read_csv(url)
+    df.to_csv(cache_path, index=False)
     return df
 
 
@@ -135,28 +151,35 @@ def load_glitch_labels(
     Returns:
         DataFrame with columns: peak_time, ifo, label (glitch class).
     """
-    df = _download_gravity_spy_metadata()
+    df = _download_gravity_spy_metadata(detector=detector)
 
-    # Column names in the Gravity Spy Zenodo export; normalize defensively
-    # since public dataset schemas occasionally shift between releases.
-    rename_map = {
-        "event_time": "peak_time",
-        "peakGPS": "peak_time",
-        "ifo": "ifo",
-        "label": "label",
-        "ml_label": "label",
-        "ml_confidence": "confidence",
-    }
-    df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
-
-    required = {"peak_time", "ifo", "label"}
-    missing = required - set(df.columns)
+    # NOTE: the raw CSV already has its own integer-GPS `peak_time` column
+    # (paired with `peak_time_ns`), separate from `event_time` (the
+    # full-precision float GPS time). Renaming event_time -> peak_time
+    # directly would collide with that existing column and silently
+    # corrupt the data -- caught by inspecting a real downloaded file
+    # rather than assumed from the column name alone. We deliberately
+    # build a fresh frame instead of renaming in place.
+    column_map = {"label": "ml_label", "confidence": "ml_confidence"}
+    missing = {src for src in column_map.values() if src not in df.columns} | (
+        {"event_time", "ifo"} - set(df.columns)
+    )
     if missing:
         raise ValueError(
             f"Gravity Spy metadata missing expected columns {missing}; "
             f"got columns: {list(df.columns)}. The upstream schema may have "
-            "changed — inspect the CSV and update the rename_map above."
+            "changed since this was last verified (2026-10-04) — inspect "
+            "the CSV and update load_glitch_labels() accordingly."
         )
+
+    df = pd.DataFrame(
+        {
+            "peak_time": df["event_time"].astype(float),
+            "ifo": df["ifo"],
+            "label": df["ml_label"],
+            "confidence": df["ml_confidence"].astype(float),
+        }
+    )
 
     if "confidence" in df.columns:
         df = df[df["confidence"] >= min_confidence]
@@ -174,10 +197,16 @@ def load_glitch_labels(
     classes = classes or default_classes
     df = df[df["label"].isin(classes)]
 
-    sampled = (
-        df.groupby("label", group_keys=False)
-        .apply(lambda g: g.sample(min(len(g), n_per_class), random_state=random_state))
-        .reset_index(drop=True)
+    # NOTE: deliberately not groupby(...).apply(...) here -- pandas changed
+    # whether the grouping column is included in the group passed to the
+    # lambda (pre-2.2 kept it, 2.2+/3.0 excludes it by default unless
+    # include_groups=True is passed), which silently dropped `label` and
+    # broke the final column selection below. Caught by actually running
+    # this against a real downloaded file, not just reading the pandas
+    # docs. This formulation is correct across pandas versions.
+    sampled = pd.concat(
+        [g.sample(min(len(g), n_per_class), random_state=random_state) for _, g in df.groupby("label")],
+        ignore_index=True,
     )
 
     return sampled[["peak_time", "ifo", "label"]]

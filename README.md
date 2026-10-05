@@ -34,6 +34,13 @@ GWTC event GPS times, while `glitch` examples come directly from Gravity Spy
 labels. This is a reasonable first baseline but is called out here
 deliberately — a real class-balance and labeling strategy is a Week 2+ item.
 
+**Known Week-1 simplification (Gravity Spy coverage):** the Gravity Spy
+Zenodo record splits metadata into one CSV per detector per observing run
+(e.g. `H1_O1.csv`, `L1_O3b.csv`) rather than one combined file. For Week 1,
+`load_glitch_labels()` pulls from a single run per detector (the smallest
+available, O1) rather than pooling across all runs — pooling is a
+reasonable Week 2+ extension once the pipeline is proven end-to-end.
+
 ## Architecture
 
 See the diagram at the top of this README. Green stages are built and
